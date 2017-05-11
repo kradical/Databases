@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Arrays;
 import java.util.PriorityQueue;
+import java.util.Comparator;
 
 public class SortPost {
 	String filename_in;
@@ -35,16 +36,24 @@ public class SortPost {
         
         int cnt = 0;
         String[] chunk = new String[M];
-        
-        //TODO: Read chunks of M lines from the file, sort, then save them as temp files
-        //tmpfile0, tmpfile1, ... (these are what we call "sorted sublists")
-        //update numChunks appropriately.
 
 		for(;;) {
 			String line;
 			while((line = in.readLine()) != null && cnt < M) {
 				chunk[cnt++] = line;
 			}
+
+			Arrays.sort(chunk, new Comparator<String>() {
+				public int compare(String st1, String st2) {
+					String cmp1 = st1.split("\\t")[c]; // get the correct comparison column
+					String cmp2 = st2.split("\\t")[c]; // get the correct comparison column
+
+					return cmp1.compareTo(cmp2);
+				}
+			});
+
+			// write to temp file
+			// TODO
 
 			cnt = 0;
 			numChunks++;
@@ -154,7 +163,7 @@ public class SortPost {
 		
 		//taxpayers_30.txt is a file containing only 30 records. 
 		//This is to make sure your program works correctly. 
-		SortPost mysort = new SortPost("taxpayers_30.txt", "taxpayers_30_sorted.txt", 10, 8192, 0, "\t");
+		SortPost mysort = new SortPost("taxpayers_30.txt", "taxpayers_30_sorted.txt", 10, 8192, 2, "\t");
 		
 		/*
 		//Only do this when you are sure the program works fine.
