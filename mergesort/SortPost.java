@@ -40,6 +40,17 @@ public class SortPost {
         //tmpfile0, tmpfile1, ... (these are what we call "sorted sublists")
         //update numChunks appropriately.
 
+		for(;;) {
+			String line;
+			while((line = in.readLine()) != null && cnt < M) {
+				chunk[cnt++] = line;
+			}
+
+			cnt = 0;
+			numChunks++;
+
+			if(line == null) { break; }
+		}
 		
         
         in.close();
