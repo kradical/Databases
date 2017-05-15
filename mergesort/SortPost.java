@@ -38,11 +38,7 @@ public class SortPost {
         String[] chunk = new String[M];
 		for(;;) {
 			String line = null;
-			while(cnt < M) {
-				line = in.readLine();
-				if(line == null){
-					break;
-				}
+			while(cnt < M && ((line = in.readLine()) != null)) {
 				chunk[cnt++] = line;
 			}
 			if(cnt != 0) {
