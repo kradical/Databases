@@ -38,20 +38,12 @@ public class SortPost {
 			String[] chunk = new String[M];
 			String line = null;
 			int cnt = 0;
+			
 			while(cnt < M && (line = in.readLine()) != null) {
 				chunk[cnt++] = line;
 			}
 
-			Arrays.sort(chunk, (a,b) -> compare(a,b) );
-
-			// write to temp file
-			BufferedWriter out = new BufferedWriter( new FileWriter(tmpfileprefix + numChunks), B );
-			for(int i = 0; i < cnt; i++) {
-				out.write(chunk[i] + "\n");
-			}
-			out.close();
-			cnt = 0;
-			numChunks++;
+			sortAndSaveChunk(chunk, tmpfileprefix + numChunks++);
 
 			if(line == null) { break; }
 		}
@@ -94,20 +86,17 @@ public class SortPost {
 		
 		for(int i = 0; i < numChunks; i++) {
 			readers[i] = new BufferedReader( new FileReader(tmpfileprefix + i), B );
+			heads.add( new HeadIndexPair(readers[i].readLine(), i) );
 		}
 		
 		BufferedWriter out = new BufferedWriter( new FileWriter(filename_out), B );
-
-		for(int i = 0; i < numChunks; i++) {
-			heads.add( new HeadIndexPair(readers[i].readLine(), i) );
-		}
 		
 		for(;;) {
 			HeadIndexPair minh = heads.poll();
 
 			//If what you get from poll is null, it means the sublists are exhausted, 
 			//so time to break from this while loop.
-			if (minh == null) {
+			if (minh == null || minh.head == null) {
 				break;
 			}
 
@@ -119,8 +108,6 @@ public class SortPost {
 				heads.add(new HeadIndexPair(nextVal, minh.i));
 			}
 		}
-
-		System.out.println("WE HERE");
 
 		for(int i=0; i<numChunks; i++) {
 			readers[i].close();
