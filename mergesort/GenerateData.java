@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Random;
+import java.lang.Exception;
 
 public class GenerateData {
 
@@ -19,7 +20,7 @@ public class GenerateData {
 	    return sb.toString();
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		int N = 3_000_000; //number of rows to generate
 		BufferedWriter out = new BufferedWriter( new FileWriter("taxpayers_3M.txt") );
 		
