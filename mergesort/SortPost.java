@@ -36,15 +36,29 @@ public class SortPost {
         
         int cnt = 0;
         String[] chunk = new String[M];
-
 		for(;;) {
-			String line;
-			while((line = in.readLine()) != null && cnt < M) {
+			String line = null;
+			while(cnt < M) {
+				line = in.readLine();
+				if(line == null){
+					break;
+				}
 				chunk[cnt++] = line;
+				System.out.println(line);
+			}
+			if(cnt != 0) {
+				int tmpCnt = cnt;
+				while(tmpCnt < M) {
+					System.out.println("EXTRA LINE!");
+					chunk[tmpCnt++] = null;
+				}
 			}
 
 			Arrays.sort(chunk, new Comparator<String>() {
 				public int compare(String st1, String st2) {
+					if(st1 == null || st2 == null) {
+						return 1;
+					}
 					String cmp1 = st1.split("\\t")[c]; // get the correct comparison column
 					String cmp2 = st2.split("\\t")[c]; // get the correct comparison column
 
@@ -54,9 +68,8 @@ public class SortPost {
 
 			// write to temp file
 			BufferedWriter out = new BufferedWriter( new FileWriter(tmpfileprefix + numChunks), B );
-			for(int i=0; i<chunk.length; i++) {
+			for(int i=0; i<cnt; i++) {
 				out.write(chunk[i] + '\n');
-				// System.out.println(chunk[i] + '\n');
 			}
 			out.close();
 			cnt = 0;
@@ -114,14 +127,13 @@ public class SortPost {
 			//TODO: Complete the merge phase
 			//If what you get from poll is null, it means the sublists are exhausted, 
 			//so time to break from this while loop.
-			if (minh == null) {
+			if (minh.head == null) {
 				break;
 			}
 			//Otherwise, add head to output, and insert the new head from the 
 			//sublist into the Priority queue.
 			out.write(minh.head + '\n');
 			String nextVal = readers[minh.i].readLine();
-			// System.out.println(nextVal);
 			if(nextVal != null){
 				heads.add(new HeadIndexPair(nextVal, minh.i));
 			}
