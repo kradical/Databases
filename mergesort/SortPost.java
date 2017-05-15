@@ -34,40 +34,20 @@ public class SortPost {
 		System.out.println("Phase 1 started");
 		BufferedReader in = new BufferedReader( new FileReader(filename_in) );
         
-        int cnt = 0;
-        String[] chunk = new String[M];
 		for(;;) {
+			String[] chunk = new String[M];
 			String line = null;
-			while(cnt < M) {
-				line = in.readLine();
-				if(line == null){
-					break;
-				}
+			int cnt = 0;
+			while(cnt < M && (line = in.readLine()) != null) {
 				chunk[cnt++] = line;
 			}
-			if(cnt != 0) {
-				int tmpCnt = cnt;
-				while(tmpCnt < M) {
-					chunk[tmpCnt++] = null;
-				}
-			}
 
-			Arrays.sort(chunk, new Comparator<String>() {
-				public int compare(String st1, String st2) {
-					if(st1 == null || st2 == null) {
-						return 1;
-					}
-					String cmp1 = st1.split("\\t")[c]; // get the correct comparison column
-					String cmp2 = st2.split("\\t")[c]; // get the correct comparison column
-
-					return cmp1.compareTo(cmp2);
-				}
-			});
+			Arrays.sort(chunk, (a,b) -> compare(a,b) );
 
 			// write to temp file
 			BufferedWriter out = new BufferedWriter( new FileWriter(tmpfileprefix + numChunks), B );
-			for(int i=0; i<cnt; i++) {
-				out.write(chunk[i] + '\n');
+			for(int i = 0; i < cnt; i++) {
+				out.write(chunk[i] + "\n");
 			}
 			out.close();
 			cnt = 0;
@@ -110,24 +90,27 @@ public class SortPost {
 		}
 		
 		PriorityQueue<HeadIndexPair> heads = 
-				new PriorityQueue<>(numChunks, (a,b) -> compare(a.head,b.head));
+				new PriorityQueue<>(numChunks, (a,b) -> compare(a.head, b.head));
 		
-		for(int i=0; i<numChunks; i++)
-			readers[i] = new BufferedReader( new FileReader(tmpfileprefix+i), B );
+		for(int i = 0; i < numChunks; i++) {
+			readers[i] = new BufferedReader( new FileReader(tmpfileprefix + i), B );
+		}
 		
 		BufferedWriter out = new BufferedWriter( new FileWriter(filename_out), B );
+
+		for(int i = 0; i < numChunks; i++) {
+			heads.add( new HeadIndexPair(readers[i].readLine(), i) );
+		}
 		
-		for(int i=0; i<numChunks; i++)
-			heads.add( new HeadIndexPair(readers[i].readLine(), i) ); 
-		
-		while(true) {
+		for(;;) {
 			HeadIndexPair minh = heads.poll();
-			//TODO: Complete the merge phase
+
 			//If what you get from poll is null, it means the sublists are exhausted, 
 			//so time to break from this while loop.
-			if (minh.head == null) {
+			if (minh == null) {
 				break;
 			}
+
 			//Otherwise, add head to output, and insert the new head from the 
 			//sublist into the Priority queue.
 			out.write(minh.head + '\n');
@@ -136,8 +119,13 @@ public class SortPost {
 				heads.add(new HeadIndexPair(nextVal, minh.i));
 			}
 		}
-		for(int i=0; i<numChunks; i++)
+
+		System.out.println("WE HERE");
+
+		for(int i=0; i<numChunks; i++) {
 			readers[i].close();
+		}
+
 		out.close();
 		System.out.println("Phase 2 Time elapsed (sec) = " + (System.currentTimeMillis() - startTime) / 1000.0);
 		System.out.println("Sort complete");
