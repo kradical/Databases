@@ -44,12 +44,10 @@ public class SortPost {
 					break;
 				}
 				chunk[cnt++] = line;
-				System.out.println(line);
 			}
 			if(cnt != 0) {
 				int tmpCnt = cnt;
 				while(tmpCnt < M) {
-					System.out.println("EXTRA LINE!");
 					chunk[tmpCnt++] = null;
 				}
 			}
