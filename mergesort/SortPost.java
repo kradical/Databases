@@ -53,8 +53,12 @@ public class SortPost {
 			});
 
 			// write to temp file
-			// TODO
-
+			BufferedWriter out = new BufferedWriter( new FileWriter(tmpfileprefix + numChunks), B );
+			for(int i=0; i<chunk.length; i++) {
+				out.write(chunk[i] + '\n');
+				// System.out.println(chunk[i] + '\n');
+			}
+			out.close();
 			cnt = 0;
 			numChunks++;
 
@@ -107,23 +111,26 @@ public class SortPost {
 		
 		while(true) {
 			HeadIndexPair minh = heads.poll();
-			
 			//TODO: Complete the merge phase
 			//If what you get from poll is null, it means the sublists are exhausted, 
 			//so time to break from this while loop.
+			if (minh == null) {
+				break;
+			}
 			//Otherwise, add head to output, and insert the new head from the 
 			//sublist into the Priority queue.
-
+			out.write(minh.head + '\n');
+			String nextVal = readers[minh.i].readLine();
+			// System.out.println(nextVal);
+			if(nextVal != null){
+				heads.add(new HeadIndexPair(nextVal, minh.i));
+			}
 		}
-		
-		/* Uncomment after completing the above while loop
 		for(int i=0; i<numChunks; i++)
 			readers[i].close();
-		
 		out.close();
 		System.out.println("Phase 2 Time elapsed (sec) = " + (System.currentTimeMillis() - startTime) / 1000.0);
 		System.out.println("Sort complete");
-		*/
 	}
 	
 	void sortAndSaveChunk(String[] chunk, String filename) throws Exception {
