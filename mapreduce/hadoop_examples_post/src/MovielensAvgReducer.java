@@ -17,7 +17,12 @@ public class MovielensAvgReducer extends Reducer<Text, MapWritable, Text, Double
 		//TODO: iterate over the values, extract "cnt" and "sum" and accumulate them into cnr and sum.
 		//Then emit the result, sum/cnt, using the same key we got in reduce(). 
 		//Convert sum/cnt to DoubleWritable (by doing new DoubleWritable(sum/cnt)).
-		
+		for (MapWritable value : values) {
+			cnt += ((IntWritable)(value.get(new Text("cnt")))).get();
+			sum += ((DoubleWritable)(value.get(new Text("sum")))).get();
+		}
+		DoubleWritable avg = new DoubleWritable(sum/cnt);
+		context.write(key, avg);
 	}
 }
 

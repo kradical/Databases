@@ -1,3 +1,4 @@
 *.class
 tmpfile*
 *_sorted.txt
+*.DS_Store
