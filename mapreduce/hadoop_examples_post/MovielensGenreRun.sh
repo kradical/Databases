@@ -1,0 +1,2 @@
+javac -cp "../spark-2.1.0-bin-hadoop2.7/jars/*:src" src/MovielensGenreAvg.java src/MovielensGenreAvgCombiner.java src/MovielensGenreAvgMapper.java src/MovielensGenreAvgReducer.java 
+java -cp "../spark-2.1.0-bin-hadoop2.7/jars/*:src" MovielensGenreAvg

@@ -63,6 +63,10 @@ public class MovielensGenreAvgMapper extends Mapper<LongWritable, Text, Text, Ma
 			//TODO: emit a K,V pair for each genre. 
 			//K is genre
 			//V is a MapWritable containing rating and the number 1 (similar to MovielensAvg)
+			MapWritable cnt_rating_map = new MapWritable();
+			cnt_rating_map.put( new Text("cnt"), new IntWritable(1));
+			cnt_rating_map.put( new Text("rating"), new DoubleWritable(rating));
+			context.write(new Text(genre), cnt_rating_map);
 		}
 	}
 }
