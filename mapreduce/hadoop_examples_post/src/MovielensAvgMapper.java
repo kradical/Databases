@@ -36,5 +36,6 @@ public class MovielensAvgMapper extends Mapper<LongWritable, Text, Text, MapWrit
 		//TODO: Add a line to emit userID and cnt_sum_map. 
 		//The line to be added is very similar to the above. 
 		//You just need to prefix the userID by "u"
+		context.write(new Text("u"+userID), cnt_sum_map);
 	}
 }

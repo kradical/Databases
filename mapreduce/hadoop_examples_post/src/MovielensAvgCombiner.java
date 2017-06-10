@@ -25,6 +25,10 @@ public class MovielensAvgCombiner extends Reducer<Text, MapWritable, Text, MapWr
 		//and the value of cnt to IntWritable (by calling new IntWritable(cnt)). 
 		//Do similarly for sum. However use DoubleWritable for it. 
 		//Then, do context.write and specify the same key provided to combiner and cnt_sum_map as value. 
+		MapWritable cnt_sum_map = new MapWritable();
+		cnt_sum_map.put( new Text("cnt"), new IntWritable(cnt) );
+		cnt_sum_map.put( new Text("sum"), new DoubleWritable(sum) );
+		context.write(key, cnt_sum_map);
 	}
 }
 
