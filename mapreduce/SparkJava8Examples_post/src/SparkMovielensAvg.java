@@ -41,6 +41,7 @@ public class SparkMovielensAvg {
     			
     			l.add(new Tuple2<>("m"+movieID, new Tuple2<>(rating,1.0)));
     			//TODO add a similar tuple for userID
+                l.add(new Tuple2<>("u"+userID, new Tuple2<>(rating,1.0)));
     			
     			return l.iterator();
     		})

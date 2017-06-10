@@ -38,14 +38,56 @@ public class SparkMovielensGenresAvg {
     BufferedReader in = new BufferedReader(new FileReader(new File(localPath)));
     
     //TODO: fill in movieGenres
+    String tmpLine;
+    while((tmpLine = in.readLine()) != null) {
+        //1,Toy Story (1995),Adventure|Animation|Children|Comedy|Fantasy
+        //check to see if this is the header tmpLine
+        if(tmpLine.contains("movieId"))
+            continue;
+        
+        String[] lineArr = tmpLine.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+        String movieID = lineArr[0];
+        String[] genres = lineArr[2].split("\\|");
+
+        movieGenres.put(movieID, genres);
+    }
     
     in.close();
     
     JavaRDD<String> mRDD = sc.textFile("input_movielens"); //directory where the files are
     
-    JavaPairRDD<String, Tuple2<Double, Double>> mPairRDD = null; //TODO = ...    
+    JavaPairRDD<String, Tuple2<Double, Double>> mPairRDD = mRDD.flatMapToPair(
+            line -> {
+                List< //we return a list of K,V pairs (Tuple2) from flatMapToPair 
+                    Tuple2<
+                        String, //movieID or userID
+                        Tuple2<Double,Double> //rating, 1.0
+                    >
+                >  l = new ArrayList<>();
+                
+                //check to see if this is the header line
+                if(line.contains("userId"))
+                    return l.iterator(); //return empty list
+                
+                String[] lineArr = line.split(",");
+                // String userID = lineArr[0];
+                String movieID = lineArr[1];
+                Double rating = Double.parseDouble(lineArr[2]);
+
+                String[] genres = movieGenres.get(movieID);
+                
+                for (String genre : genres) {
+                    l.add(new Tuple2<>(genre, new Tuple2<>(rating, 1.0)));
+                }
+                
+                return l.iterator();
+            })
+            .aggregateByKey(
+                    new Tuple2<Double, Double>(0.0, 0.0), 
+                    (acc, value) -> new Tuple2<>(acc._1 + value._1, acc._2 + 1),
+                    (acc1, acc2) -> new Tuple2<>(acc1._1 + acc2._1, acc1._2 + acc2._2) );
     
-    JavaPairRDD<String,Double> avgPairRDD = null; //TODO = ...
+    JavaPairRDD<String,Double> avgPairRDD = mPairRDD.mapToPair(x->new Tuple2<>(x._1, x._2._1/x._2._2));
     
 	//remove output directory if already there
 	FileSystem fs = FileSystem.get(sc.hadoopConfiguration());
