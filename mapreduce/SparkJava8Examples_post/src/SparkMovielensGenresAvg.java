@@ -91,10 +91,10 @@ public class SparkMovielensGenresAvg {
     
 	//remove output directory if already there
 	FileSystem fs = FileSystem.get(sc.hadoopConfiguration());
-	fs.delete(new Path("output_movielens"), true); // delete dir, true for recursive
-	avgPairRDD.saveAsTextFile("output_movielens");
+	fs.delete(new Path("output_movielens_genres"), true); // delete dir, true for recursive
+	avgPairRDD.saveAsTextFile("output_movielens_genres");
 	
-	System.out.println("Done. See result in 'output_movielens'");
+	System.out.println("Done. See result in 'output_movielens_genres'");
     	
     sc.stop();
     sc.close();

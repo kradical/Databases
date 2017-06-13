@@ -22,7 +22,7 @@ public class MovielensGenreAvg extends Configured implements Tool
 		BasicConfigurator.configure();
 		//Logger.getRootLogger().setLevel(Level.ERROR);
 		
-		args = new String[] {"input_movielens", "output_movielens"};
+		args = new String[] {"input_movielens", "output_movielens_genres"};
 		
 		if(args.length !=2) {
 			System.err.println("Usage: MovielensAvg <input path> <output path>");
