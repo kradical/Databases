@@ -90,31 +90,64 @@ public class MedlineAnalysis_post {
                 "Now we'll do degree analysis in the topics graph.\n" + 
                 "Each topic is a vertex.\n" +
                 "Each pair in cooccurs is an edge." );
-            //Complete the TODO parts for Assignment 4.
-            //TODO Create an "edges" RDD from cooccurs. 
-        //E.g. if ((t1,t2),cnt) in cooccurs, map to (t1,t2) and (t2,t1) in edges.
-        //This is because the graph is undirected, so for each pair of connected 
-        //topics, we need to create both the forward and backward edge.
-        JavaPairRDD<String,String> edges; // = ... 
-           //TODO Transform "edges" to "edges_1", namely, 
-        //for each (u,v) in edges, map to (u,1)
-        JavaPairRDD<String,Integer> edges_1; // = ...
-            //TODO Transform "edges_1" to an RDD of vertex-degree pairs.
-        //Note that we could do that using countByKey() on edges, but 
-        //this is unfortunately an "action" (not a transformation), 
-        //i.e. it does not produce an RDD for further parallel processing.
-        //Hence, we would like to find the degrees using reduceByKey().
-        JavaPairRDD<String, Integer> vert_deg_rdd; // = ... 
-            //TODO Print out the top 10 most connected vertices (of highest degree)
-        //...
-            //TODO Do degree frequency analysis. 
-        //Namely, for each degree value d, give the number of vertices 
-        //that have a degree of d.
-        //The result should be an RDD of (degree,frequency) pairs. 
-        //Sort in ascending order by degree.
-        //Then, plot the frequency numbers in Excel. 
-        //You should observe the "long-tail" phenomenon. 
-        //...
+        
+        // Create an "edges" RDD from cooccurs. 
+        // E.g. if ((t1,t2),cnt) in cooccurs, map to (t1,t2) and (t2,t1) in edges.
+        // This is because the graph is undirected, so for each pair of connected 
+        // topics, we need to create both the forward and backward edge.
+        JavaPairRDD<String,String> edges= cooccurs
+            .flatMapToPair(c -> {
+                List<Tuple2<String,String>> combinations = new ArrayList<>();
+                combinations.add(new Tuple2<>(c._1._1, c._1._2));
+                combinations.add(new Tuple2<>(c._1._2, c._1._1));
+                
+                return combinations.iterator();
+            });
+        
+        // Transform "edges" to "edges_1", namely, 
+        // for each (u,v) in edges, map to (u,1)
+        JavaPairRDD<String,Integer> edges_1 = edges
+            .mapToPair(e -> new Tuple2<>(e._1, 1));
+        
+        // Transform "edges_1" to an RDD of vertex-degree pairs.
+        // Note that we could do that using countByKey() on edges, but 
+        // this is unfortunately an "action" (not a transformation), 
+        // i.e. it does not produce an RDD for further parallel processing.
+        // Hence, we would like to find the degrees using reduceByKey().
+        JavaPairRDD<String, Integer> vert_deg_rdd = edges_1
+            .reduceByKey((x,y) -> x + y);
+        
+        System.out.println("The top 10 most connected vertices are:");
+        
+        // Print out the top 10 most connected vertices (of highest degree)
+        vert_deg_rdd.mapToPair(p -> new Tuple2<>(p._2, p._1))
+            .sortByKey(false)
+            .take(10)
+            .forEach(x -> System.out.println(x._1 + ": " + x._2));
+        
+        // Do degree frequency analysis. 
+        // Namely, for each degree value d, give the number of vertices 
+        // that have a degree of d.
+        // The result should be an RDD of (degree,frequency) pairs. 
+        // Sort in ascending order by degree.
+        // Then, plot the frequency numbers in Excel. 
+        // You should observe the "long-tail" phenomenon. 
+        JavaPairRDD<Integer, Iterable<String>> cnt_vert_deg = vert_deg_rdd
+            .mapToPair(p -> new Tuple2<>(p._2, p._1))
+            .groupByKey();
+
+        cnt_vert_deg
+            .sortByKey(true)
+            .collect()
+            .forEach(x -> {
+                int size = 0;
+                for (String s : x._2) {
+                    size++;
+                }
+                
+                System.out.println(x._1 + "," + size);
+            });
+
         sc.stop();
         sc.close();
     }
